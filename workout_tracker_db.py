@@ -39,4 +39,51 @@ class WorkoutTracker:
         for t in trainingen:
             print(f"{t[0]}. {t[1]}: {t[2]} - {t[3]} sets - {t[4]} reps - {t[5]} kg")
     
-    def update_workout(self)
+    def update_workout(self):
+        self.view_workouts()
+        workout_id = input("Number of workout you want to change: ")
+        change = input("What do you want to change? date/exercise/sets/reps/weight: ")
+        if change == "date":
+            new_date = input("New Date: ")
+            update_query = """UPDATE workouts SET date = %s WHERE id = %s"""
+            data = [new_date, workout_id]
+            self.curr.execute(update_query, data)
+            self.connectie.commit()
+            print("Updated")
+        elif change == "exercise":
+            new_exercise = input("New exercise: ")
+            update_query = """UPDATE workouts SET exercise = %s WHERE id = %s"""
+            data = [new_exercise, workout_id]
+            self.curr.execute(update_query, data)
+            self.connectie.commit()
+            print("Updated")
+        elif change == "sets":
+            new_sets = int(input("New sets: "))
+            update_query = """UPDATE workouts SET sets = %s WHERE id = %s"""
+            data = [new_sets, workout_id]
+            self.curr.execute(update_query, data)
+            self.connectie.commit()
+            print("Updated")
+        elif change == "reps":
+            new_reps = int(input("New reps: "))
+            update_query = """UPDATE workouts SET reps = %s WHERE id = %s"""
+            data = [new_reps, workout_id]
+            self.curr.execute(update_query, data)
+            self.connectie.commit()
+            print("Updated")
+        elif change == "weight":
+            new_weight = float(input("new weight: "))
+            update_query = """UPDATE workouts SET weight = %s WHERE id = %s"""
+            data = [new_weight, workout_id]
+            self.curr.execute(update_query, data)
+            self.connectie.commit()
+            print("Updated")
+
+    def delete_workout(self):
+        self.view_workouts()
+        workout_id = input("Number of workout you want to delete: ")
+        delete_query = """DELETE FROM workouts WHERE id = %s"""
+        data = [workout_id]
+        self.curr.execute(delete_query, data)
+        self.connectie.commit()
+        print("Workout Deleted.")
