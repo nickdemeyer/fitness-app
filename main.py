@@ -1,4 +1,4 @@
-from workouttracker import WorkoutTracker
+from workouttracker_db import WorkoutTracker
 from mealtracker import MealTracker
 from datetime import datetime
 
@@ -60,9 +60,10 @@ while True:
                         tracker.add_workout(date, exercise, sets, reps, weight)
 
                 elif choice == "2":
-                    tracker.view_workout()
+                    tracker.view_workouts()
 
                 elif choice == "3":
+                    tracker.close_connection()
                     print("EXIT")
                     break 
 
