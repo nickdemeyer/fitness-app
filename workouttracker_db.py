@@ -29,12 +29,17 @@ class WorkoutTracker:
 
         for r in self.rows:
             print("------------------")
-            print(f"{r[1]}:")
+            print(f"{r[0]}.{r[1]}:")
             print(f"{r[2]}")
             print(f"{r[3]} sets")
             print(f"{r[4]} reps")
             print(f"{r[5]} kg")
             print("------------------")
+
+    def update_workout(self, id, field, new_value):
+        query = f"update workouts set {field} = %s where id = %s"
+        self.cur.execute(query, (new_value, id))
+        self.con.commit()
 
     def close_connection(self):
         self.cur.close()

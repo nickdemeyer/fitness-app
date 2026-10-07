@@ -33,6 +33,14 @@ def get_valid_date(prompt):
         except ValueError:
             print("Invalid Input. Try again.")
 
+def get_valid_field(prompt):
+    while True:
+        text = input(prompt)
+        if text == "date" or text == "exercise" or text == "sets" or text == "reps" or text == "weight":
+            return text
+        else:
+            print("try again")
+            continue
 while True:
     print("==== MENU ====")
     print("1. WORKOUTS")
@@ -46,7 +54,8 @@ while True:
                 print("===== MENU =====")
                 print("1. Add Workout")
                 print("2. View Workout")
-                print("3. Exit")
+                print("3. Update Workout")
+                print("4. Exit")
 
                 choice = input("Option: ")
 
@@ -63,6 +72,22 @@ while True:
                     tracker.view_workouts()
 
                 elif choice == "3":
+                    tracker.view_workouts()
+                    id = get_valid_number("select workout number to change: ", int)
+                    field = get_valid_field("choose option to continue date/exercise/sets/reps/weight: ")
+                    if field == "date":
+                        new_value = get_valid_date("New date: ")
+                    elif field == "exercise":
+                        new_value = get_valid_text("New exercise: ")
+                    elif field == "sets":
+                        new_value = get_valid_number("New sets: ", int)
+                    elif field == "reps":
+                        new_value = get_valid_number("New reps: ", int)
+                    elif field == "weight":
+                        new_value = get_valid_number("New weight: ", float)
+                    tracker.update_workout(id, field, new_value)
+
+                elif choice == "4":
                     tracker.close_connection()
                     print("EXIT")
                     break 
