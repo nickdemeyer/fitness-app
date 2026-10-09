@@ -41,6 +41,11 @@ class WorkoutTracker:
         self.cur.execute(query, (new_value, id))
         self.con.commit()
 
+    def delete_workout(self, id):
+        query = "delete from workouts where id = %s"
+        self.cur.execute(query,(id,))
+        self.con.commit()
+
     def close_connection(self):
         self.cur.close()
         self.con.close()

@@ -55,7 +55,8 @@ while True:
                 print("1. Add Workout")
                 print("2. View Workout")
                 print("3. Update Workout")
-                print("4. Exit")
+                print("4. Delete Workout")
+                print("5. Exit")
 
                 choice = input("Option: ")
 
@@ -88,6 +89,11 @@ while True:
                     tracker.update_workout(id, field, new_value)
 
                 elif choice == "4":
+                    tracker.view_workouts()
+                    id = get_valid_number("Select workout number to delete: ", int)
+                    tracker.delete_workout(id)
+
+                elif choice == "5":
                     tracker.close_connection()
                     print("EXIT")
                     break 
