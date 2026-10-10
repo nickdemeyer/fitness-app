@@ -1,5 +1,5 @@
 from workouttracker_db import WorkoutTracker
-from mealtracker import MealTracker
+from mealtracker_db import MealTracker
 from datetime import datetime
 
 tracker = WorkoutTracker()
@@ -117,9 +117,10 @@ while True:
                 meal_tracker.add_meal(date, name, calories, protein, carbs, fats)
 
             elif choice == "2":
-                meal_tracker.view_meal()
+                meal_tracker.view_meals()
 
             elif choice == "3":
+                meal_tracker.close_connection()
                 print("EXIT")
                 break
 
