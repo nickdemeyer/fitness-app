@@ -11,8 +11,9 @@ put my meals in so i can track my daily calorie intake. Still in the very early 
 ## Tech used:
 - python
 - OOP
-- JSON
+- PostgreSQL
 
 ## Roadmap:
 Finished month 1 of my roadmap that im following.
-Next will be month 2 databases and backend API 
+Integrated postgreSQL to store my workouts and meals.
+Next up flask, API

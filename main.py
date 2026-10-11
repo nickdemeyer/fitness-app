@@ -102,7 +102,6 @@ while True:
                     tracker.delete_workout(id)
 
                 elif choice == "5":
-                    tracker.close_connection()
                     print("EXIT")
                     break 
 
@@ -152,12 +151,13 @@ while True:
                 meal_tracker.view_meals()
                 id = get_valid_number("Select meal number to delete: ", int)
                 meal_tracker.delete_meal(id)
-                
+
             elif choice == "5":
-                meal_tracker.close_connection()
                 print("EXIT")
                 break
 
     elif keuze == "3":
+        tracker.close_connection()
+        meal_tracker.close_connection()
         print("Closing Application....")
         break
