@@ -39,3 +39,8 @@ class MealTracker:
     def close_connection(self):
         self.cur.close()
         self.con.close()
+
+    def update_meal(self, id, field, new_value):
+        query = f"update meals set {field} = %s where id = %s"
+        self.cur.execute(query, (new_value, id))
+        self.con.commit()

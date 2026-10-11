@@ -30,3 +30,7 @@
             #cursor to communicate with the database
             self.cur = self.con.cursor()
             return
+
+
+## selecting a column name with f string:
+    query = f"update workouts set {field} = %s where id = %s"

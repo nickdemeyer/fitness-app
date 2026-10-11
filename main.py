@@ -41,6 +41,14 @@ def get_valid_field(prompt):
         else:
             print("try again")
             continue
+def get_valid_field_meals(prompt):
+    while True:
+        text = input(prompt)
+        if text == "date" or text == "name" or text == "calories" or text == "protein" or text == "carbs" or text == "fats":
+            return text
+        else:
+            print("try again")
+            continue
 while True:
     print("==== MENU ====")
     print("1. WORKOUTS")
@@ -103,7 +111,8 @@ while True:
             print("==== MENU ====")
             print("1. Add Meal")
             print("2. View Meal")
-            print("3. Exit")
+            print("3. Update Meal")
+            print("5. Exit")
 
             choice = input("Choose option: ")
 
@@ -120,6 +129,26 @@ while True:
                 meal_tracker.view_meals()
 
             elif choice == "3":
+                meal_tracker.view_meals()
+                id = get_valid_number("select meal number to change: ", int)
+                field = get_valid_field_meals("choose: date, name, calories, protein, carbs or fats to continue: ")
+                if field == "date":
+                    new_value = get_valid_date("New Date: ")
+                elif field == "name":
+                    new_value = get_valid_text("New Meal: ")
+                elif field == "calories":
+                    new_value = get_valid_number("New Calories: ", int)
+                elif field == "protein":
+                    new_value = get_valid_number("New Protein: ", int)
+                elif field == "carbs":
+                    new_value = get_valid_number("New Carbs: ", int)
+                elif field == "fats":
+                    new_value = get_valid_number("New Fats: ", int)
+
+                meal_tracker.update_meal(id, field, new_value)
+
+
+            elif choice == "5":
                 meal_tracker.close_connection()
                 print("EXIT")
                 break
