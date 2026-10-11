@@ -30,6 +30,7 @@ class MealTracker:
         for r in self.rows:
             print("--------------------")
             print(f"{r[0]}. {r[1]}:")
+            print(f"Meal: {r[2]}")
             print(f"KCAL: {r[3]}")
             print(f"protein: {r[4]}g")
             print(f"carbs: {r[5]}g")
@@ -43,4 +44,9 @@ class MealTracker:
     def update_meal(self, id, field, new_value):
         query = f"update meals set {field} = %s where id = %s"
         self.cur.execute(query, (new_value, id))
+        self.con.commit()
+
+    def delete_meal(self,id):
+        query = "delete from meals where id = %s"
+        self.cur.execute(query,(id,))
         self.con.commit()

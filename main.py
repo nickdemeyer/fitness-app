@@ -112,6 +112,7 @@ while True:
             print("1. Add Meal")
             print("2. View Meal")
             print("3. Update Meal")
+            print("4. Delete Meal")
             print("5. Exit")
 
             choice = input("Choose option: ")
@@ -147,7 +148,11 @@ while True:
 
                 meal_tracker.update_meal(id, field, new_value)
 
-
+            elif choice == "4":
+                meal_tracker.view_meals()
+                id = get_valid_number("Select meal number to delete: ", int)
+                meal_tracker.delete_meal(id)
+                
             elif choice == "5":
                 meal_tracker.close_connection()
                 print("EXIT")
