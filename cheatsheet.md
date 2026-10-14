@@ -35,3 +35,6 @@
 ## selecting a column name with f string:
     query = f"update workouts set {field} = %s where id = %s"
 
+## flask
+    virtualenv name
+    activate env: .\env\Scripts\Activate.ps1
