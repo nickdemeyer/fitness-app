@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from workouttracker_db import WorkoutTracker
 
 #making the webserver flask app in a variable
 app = Flask(__name__) 
@@ -21,6 +22,14 @@ def test_workout():
                "reps": 10,
                "weight": 50}
     return jsonify(workout)
+
+#view workouts route
+@app.route('/api/workouts')
+def api_workouts():
+    tracker = WorkoutTracker()
+    workouts = tracker.web_view_workouts()
+    tracker.close_connection()
+    return jsonify(workouts)
 
 #making sure the app can start
 if __name__ == "__main__":

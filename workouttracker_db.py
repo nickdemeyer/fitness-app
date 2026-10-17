@@ -36,6 +36,16 @@ class WorkoutTracker:
             print(f"{r[5]} kg")
             print("------------------")
 
+    def web_view_workouts(self):
+        self.cur.execute("select * from workouts")
+        columns = ["id", "date", "exercise", "sets", "reps", "weight"]
+        rows = self.cur.fetchall()
+        workouts = []
+        for r in rows:
+            workout = dict(zip(columns, r))
+            workouts.append(workout)
+        return workouts
+
     def update_workout(self, id, field, new_value):
         query = f"update workouts set {field} = %s where id = %s"
         self.cur.execute(query, (new_value, id))
