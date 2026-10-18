@@ -38,3 +38,7 @@
 ## flask
     virtualenv name
     activate env: .\env\Scripts\Activate.ps1
+
+    print goes to terminal, return goes back to the caller
+    decimal becomes a quoted string in jsaon, and float() fixes it.
+    a list of tuples becomes a list of dictionaries with a loop and dict(zip(columns, row)).
