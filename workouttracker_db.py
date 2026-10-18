@@ -37,12 +37,13 @@ class WorkoutTracker:
             print("------------------")
 
     def web_view_workouts(self):
-        self.cur.execute("select * from workouts")
+        self.cur.execute("select id, date, exercise, sets, reps, weight from workouts")
         columns = ["id", "date", "exercise", "sets", "reps", "weight"]
         rows = self.cur.fetchall()
         workouts = []
         for r in rows:
             workout = dict(zip(columns, r))
+            workout["weight"] = float(workout["weight"])
             workouts.append(workout)
         return workouts
 

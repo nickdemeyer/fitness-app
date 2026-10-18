@@ -37,6 +37,16 @@ class MealTracker:
             print(f"fats: {r[6]}g")
             print("--------------------")
 
+    def web_view_meals(self):
+        self.cur.execute("select * from meals")
+        columns = ["id", "date", "name", "calories", "protein", "carbs", "fats"]
+        rows = self.cur.fetchall()
+        meals = []
+        for r in rows:
+            meal = dict(zip(columns, r))
+            meals.append(meal)
+        return meals
+
     def close_connection(self):
         self.cur.close()
         self.con.close()
