@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from workouttracker_db import WorkoutTracker
 from mealtracker_db import MealTracker
 
@@ -25,12 +25,19 @@ def test_workout():
     return jsonify(workout)
 
 #view workouts route
-@app.route('/api/workouts')
+@app.route('/api/workouts', methods=['GET', 'POST'])
 def api_workouts():
     tracker = WorkoutTracker()
-    workouts = tracker.web_view_workouts()
-    tracker.close_connection()
-    return jsonify(workouts)
+    if request.method == 'GET':
+        workouts = tracker.web_view_workouts()
+        tracker.close_connection()
+        return jsonify(workouts)
+    elif request.method == 'POST':
+        data = request.get_json() #vang json data op
+        tracker.add_workout(data["date"], data["exercise"], data["sets"], data["reps"], data["weight"])
+        tracker.close_connection()
+        return jsonify("Workout Added!"), 201
+
 
 #view meals route
 @app.route('/api/meals')
@@ -39,6 +46,8 @@ def api_meals():
     meals = meal_tracker.web_view_meals()
     meal_tracker.close_connection()
     return jsonify(meals)
+
+
 
 
 #making sure the app can start

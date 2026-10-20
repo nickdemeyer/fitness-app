@@ -23,6 +23,8 @@ class WorkoutTracker:
         self.cur.execute("insert into workouts (date, exercise, sets, reps, weight) values (%s,%s,%s,%s,%s)", (date, exercise, sets, reps, weight))
         self.con.commit() 
 
+    
+
     def view_workouts(self):
         self.cur.execute("select id, date, exercise, sets, reps, weight from workouts")
         self.rows = self.cur.fetchall()
