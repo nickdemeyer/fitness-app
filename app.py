@@ -32,8 +32,24 @@ def api_workouts():
         workouts = tracker.web_view_workouts()
         tracker.close_connection()
         return jsonify(workouts)
+    
     elif request.method == 'POST':
         data = request.get_json() #vang json data op
+        
+        #controleren of de velden bestaan
+        verplichte_velden = ["date", "exercise", "sets", "reps", "weight"]
+        for veld in verplichte_velden:
+            if veld not in data:
+                return jsonify({"error": f"Missing required field: {veld}"}), 400
+
+        #checking numbers being positive
+        if type(data["sets"]) is not int or data["sets"] <= 0:
+            return jsonify("Error, try again"), 400
+        if type(data["reps"]) is not int or data["reps"] <= 0:
+            return jsonify("Error, try again"), 400
+        if data["weight"] < 0:
+            return jsonify("Cannot be negative"), 400
+
         tracker.add_workout(data["date"], data["exercise"], data["sets"], data["reps"], data["weight"])
         tracker.close_connection()
         return jsonify("Workout Added!"), 201
