@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from workouttracker_db import WorkoutTracker
 from mealtracker_db import MealTracker
+from datetime import datetime
 
 #making the webserver flask app in a variable
 app = Flask(__name__) 
@@ -34,21 +35,45 @@ def api_workouts():
         return jsonify(workouts)
     
     elif request.method == 'POST':
-        data = request.get_json() #vang json data op
+        data = request.get_json(silent=True) #vang json data op
+
+        #bestaat de data en of json object dict is
+        if data is None or type(data) is not dict:
+            tracker.close_connection()
+            return jsonify("No valid data"), 400
         
         #controleren of de velden bestaan
         verplichte_velden = ["date", "exercise", "sets", "reps", "weight"]
         for veld in verplichte_velden:
             if veld not in data:
+                tracker.close_connection()
                 return jsonify({"error": f"Missing required field: {veld}"}), 400
 
-        #checking numbers being positive
+        #validation points
+        if type(data["date"]) is not str:
+            tracker.close_connection()
+            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+        try:
+            datetime.strptime(data["date"], "%d-%m-%Y")
+        except ValueError:
+            tracker.close_connection()
+            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+
+        if type(data["exercise"]) is not str or data["exercise"] == "":
+            tracker.close_connection()
+            return jsonify("Error, try again"), 400
+        
         if type(data["sets"]) is not int or data["sets"] <= 0:
+            tracker.close_connection()
             return jsonify("Error, try again"), 400
+        
         if type(data["reps"]) is not int or data["reps"] <= 0:
+            tracker.close_connection()
             return jsonify("Error, try again"), 400
-        if data["weight"] < 0:
-            return jsonify("Cannot be negative"), 400
+
+        if type(data["weight"]) not in [int, float] or data["weight"] < 0:
+            tracker.close_connection()
+            return jsonify("Error, try again"), 400
 
         tracker.add_workout(data["date"], data["exercise"], data["sets"], data["reps"], data["weight"])
         tracker.close_connection()
