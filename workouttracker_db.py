@@ -59,6 +59,18 @@ class WorkoutTracker:
         self.cur.execute(query,(id,))
         self.con.commit()
 
+    def web_view_one_workout(self, id):
+        query = "select id, date, exercise, sets, reps, weight from workouts where id = %s"
+        self.cur.execute(query,(id,))
+        row = self.cur.fetchone()
+        if row is None:
+            return None
+        columns = ["id", "date", "exercise", "sets", "reps", "weight"]
+        workout = dict(zip(columns, row))
+        workout["weight"] = float(workout["weight"])
+        return workout
+        
+
     def close_connection(self):
         self.cur.close()
         self.con.close()

@@ -25,7 +25,7 @@ def test_workout():
                "weight": 50}
     return jsonify(workout)
 
-#view workouts route
+#view workouts route and update workout
 @app.route('/api/workouts', methods=['GET', 'POST'])
 def api_workouts():
     tracker = WorkoutTracker()
@@ -79,6 +79,16 @@ def api_workouts():
         tracker.close_connection()
         return jsonify("Workout Added!"), 201
 
+#view one workout route
+@app.route("/api/workouts/<int:id>", methods=['GET'])
+def api_one_workout(id):
+    tracker = WorkoutTracker()
+    workout = tracker.web_view_one_workout(id)
+    tracker.close_connection()
+    if workout is None:
+        return jsonify("Error! Workout not found."), 404
+    else:
+        return jsonify(workout), 200
 
 #view meals route
 @app.route('/api/meals')
