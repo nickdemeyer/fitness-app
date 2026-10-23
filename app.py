@@ -89,6 +89,16 @@ def api_one_workout(id):
         return jsonify("Error! Workout not found."), 404
     else:
         return jsonify(workout), 200
+    
+@app.route("/api/workouts/<int:id>", methods=['DELETE'])
+def api_delete_workout(id):
+    tracker = WorkoutTracker()
+    del_workout = tracker.web_delete_workout(id)
+    tracker.close_connection()
+    if del_workout is False:
+        return jsonify("Error! Workout does not exist."), 404
+    else:
+        return jsonify("Workout Deleted!"), 200
 
 #view meals route
 @app.route('/api/meals')

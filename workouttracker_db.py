@@ -59,6 +59,15 @@ class WorkoutTracker:
         self.cur.execute(query,(id,))
         self.con.commit()
 
+    def web_delete_workout(self, id):
+        query = "delete from workouts where id = %s"
+        self.cur.execute(query,(id,))
+        self.con.commit()
+        if self.cur.rowcount == 0:
+            return False
+        else:
+            return True
+
     def web_view_one_workout(self, id):
         query = "select id, date, exercise, sets, reps, weight from workouts where id = %s"
         self.cur.execute(query,(id,))
