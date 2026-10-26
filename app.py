@@ -109,7 +109,7 @@ def api_update_workout(id):
 
     #step 2: controlling if json exist or is a dict
     if data is None or type(data) is not dict:
-        tracker.close_connection
+        tracker.close_connection()
         return jsonify("No valid data"), 400
 
     #step 3: controlling if field exists
