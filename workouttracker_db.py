@@ -54,6 +54,21 @@ class WorkoutTracker:
         self.cur.execute(query, (new_value, id))
         self.con.commit()
 
+    def web_update_workout(self, id, field, new_value):
+        whitelist_columns = ["date", "exercise", "sets", "reps", "weight"]
+
+        if field not in whitelist_columns:
+            return False
+        else:
+            query = f"update workouts set {field} = %s where id = %s"
+            self.cur.execute(query, (new_value, id))
+            self.con.commit()
+
+        if self.cur.rowcount == 0:
+            return False
+        else:
+            return True
+
     def delete_workout(self, id):
         query = "delete from workouts where id = %s"
         self.cur.execute(query,(id,))

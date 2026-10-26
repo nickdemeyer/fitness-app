@@ -42,3 +42,15 @@
     print goes to terminal, return goes back to the caller
     decimal becomes a quoted string in jsaon, and float() fixes it.
     a list of tuples becomes a list of dictionaries with a loop and dict(zip(columns, row)).
+
+    - request.get_json(silent=True) returns None instead of crashing on bad input.
+    - fetchone() returns None when nothing is found. cur.rowcount is 0 when nothing was changed.
+    - Close the connection on every path, including early returns.
+
+## flask get json values:
+# data.get("sleutel") pakt de waarde achter de sleutel, of geeft None als die ontbreekt.
+
+data = request.get_json(silent=True)
+
+field = data.get("field")          # als json {"field": "duration"}, dan field = "duration"
+new_value = data.get("new_value")  # als json {"new_value": 45}, dan new_value = 45

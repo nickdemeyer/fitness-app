@@ -25,7 +25,7 @@ def test_workout():
                "weight": 50}
     return jsonify(workout)
 
-#view workouts route and update workout
+#view workouts route and adding a workout
 @app.route('/api/workouts', methods=['GET', 'POST'])
 def api_workouts():
     tracker = WorkoutTracker()
@@ -79,7 +79,7 @@ def api_workouts():
         tracker.close_connection()
         return jsonify("Workout Added!"), 201
 
-#view one workout route
+#view one workout route, delete and update
 @app.route("/api/workouts/<int:id>", methods=['GET'])
 def api_one_workout(id):
     tracker = WorkoutTracker()
@@ -100,6 +100,67 @@ def api_delete_workout(id):
     else:
         return jsonify("Workout Deleted!"), 200
 
+@app.route("/api/workouts/<int:id>", methods=['PUT'])
+def api_update_workout(id):
+    tracker = WorkoutTracker()
+
+    #step 1: get json data
+    data = request.get_json(silent=True)
+
+    #step 2: controlling if json exist or is a dict
+    if data is None or type(data) is not dict:
+        tracker.close_connection
+        return jsonify("No valid data"), 400
+
+    #step 3: controlling if field exists
+    whitelist = ["date", "exercise", "sets", "reps", "weight"]
+
+    field = data.get("field")
+    new_value = data.get("new_value")
+
+    if field not in whitelist:
+        tracker.close_connection()
+        return jsonify("Error, bad request!"), 400
+
+    #step 4: controlling new_value validation as the right type for that field
+    if field == "date":
+        if type(new_value) is not str:
+            tracker.close_connection()
+            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+        try:
+            datetime.strptime(new_value, "%d-%m-%Y")
+        except ValueError:
+            tracker.close_connection()
+            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+
+    elif field == "exercise":
+        if type(new_value) is not str or new_value == "":
+            tracker.close_connection()
+            return jsonify("Error, try again"), 400
+        
+    elif field == "sets":
+        if type(new_value) is not int or new_value <= 0:
+            tracker.close_connection()
+            return jsonify("Error, try again"), 400
+
+    elif field == "reps":
+        if type(new_value) is not int or new_value <= 0:
+            tracker.close_connection()
+            return jsonify("Error, try again"), 400
+
+    elif field == "weight":
+        if type(new_value) not in [int, float] or new_value < 0:
+            tracker.close_connection()
+            return jsonify("Error, try again"), 400
+
+    #step 5: return confirm message
+    upd_workout = tracker.web_update_workout(id, field, new_value)
+    tracker.close_connection()
+    if upd_workout is False:
+        return jsonify("Workout does not exist!"), 404
+    else:
+        return jsonify("workout updated!"), 200
+    
 #view meals route
 @app.route('/api/meals')
 def api_meals():
