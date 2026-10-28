@@ -161,13 +161,86 @@ def api_update_workout(id):
     else:
         return jsonify("workout updated!"), 200
     
-#view meals route
-@app.route('/api/meals')
+#view meals route + add meal (post)
+@app.route('/api/meals', methods=['GET', 'POST'])
 def api_meals():
     meal_tracker = MealTracker()
-    meals = meal_tracker.web_view_meals()
+    if request.method == 'GET':
+        meals = meal_tracker.web_view_meals()
+        meal_tracker.close_connection()
+        return jsonify(meals)
+
+    elif request.method == 'POST':
+        #getting data
+        data = request.get_json(silent=True)
+
+        #bestaat data en is json een dict?
+        if data is None or type(data) is not dict:
+            meal_tracker.close_connection()
+            return jsonify("No valid data"), 400
+
+        #do the fields exist?
+        field = ["date", "name", "calories", "protein", "carbs", "fats"]
+        for f in field:
+            if f not in data:
+                meal_tracker.close_connection()
+                return jsonify(f"Error, missing required field: {f}"), 400
+
+        #controlling right user input - validation input
+        if type(data["date"]) is not str:
+            meal_tracker.close_connection()
+            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+        try:
+            datetime.strptime(data["date"], "%d-%m-%Y")
+        except ValueError:
+            meal_tracker.close_connection()
+            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+
+        if type(data["name"]) is not str or data["name"] == "":
+            meal_tracker.close_connection()
+            return jsonify("Error, Try again"), 400
+
+        if type(data["calories"]) is not int or data["calories"] <= 0:
+            meal_tracker.close_connection()
+            return jsonify("Error, try again"), 400
+
+        if type(data["protein"]) is not int or data["protein"] < 0:
+            meal_tracker.close_connection()
+            return jsonify("Error, try again"), 400
+
+        if type(data["carbs"]) is not int or data["carbs"] < 0:
+            meal_tracker.close_connection()
+            return jsonify("Error, try again"), 400
+
+        if type(data["fats"]) is not int or data["fats"] < 0:
+            meal_tracker.close_connection()
+            return jsonify("Error, try again"), 400
+
+        meal_tracker.add_meal(data["date"], data["name"], data["calories"], data["protein"], data["carbs"], data["fats"])
+        meal_tracker.close_connection()
+        return jsonify("Meal Added!"), 201
+
+#Route view one meal
+@app.route("/api/meals/<int:id>", methods=['GET'])
+def api_one_meal(id):
+    meal_tracker = MealTracker()
+    meal = meal_tracker.web_view_one_meal(id)
     meal_tracker.close_connection()
-    return jsonify(meals)
+    if meal is None:
+        return jsonify("Error. Meal not found!"), 404
+    else:
+        return jsonify(meal), 200
+
+#Route delete meal
+@app.route("/api/meals/<int:id>", methods=['DELETE'])
+def api_delete_meal(id):
+    meal_tracker = MealTracker()
+    del_meal = meal_tracker.web_delete_meal(id)
+    meal_tracker.close_connection()
+    if del_meal is False:
+        return jsonify("Error. Meal does not exist!"), 404
+    else:
+        return jsonify("Meal Deleted!"), 200
 
 
 

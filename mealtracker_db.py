@@ -51,6 +51,16 @@ class MealTracker:
         self.cur.close()
         self.con.close()
 
+    def web_view_one_meal(self, id):
+        query = "select id, date, name, calories, protein, carbs, fats from meals where id = %s"
+        self.cur.execute(query, (id,))
+        row = self.cur.fetchone()
+        if row is None:
+            return None
+        columns = ["id", "date", "name", "calories", "protein", "carbs", "fats"]
+        meal = dict(zip(columns, row))
+        return meal
+
     def update_meal(self, id, field, new_value):
         query = f"update meals set {field} = %s where id = %s"
         self.cur.execute(query, (new_value, id))
@@ -60,3 +70,12 @@ class MealTracker:
         query = "delete from meals where id = %s"
         self.cur.execute(query,(id,))
         self.con.commit()
+
+    def web_delete_meal(self, id):
+        query = "delete from meals where id = %s"
+        self.cur.execute(query,(id,))
+        self.con.commit()
+        if self.cur.rowcount == 0:
+            return False
+        else:
+            return True
