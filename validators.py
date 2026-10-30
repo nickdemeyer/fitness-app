@@ -20,6 +20,6 @@ def check_whole_number(value):
     return None
 
 def check_non_negative_number(value):
-    if type(value) is not [int, float] or value < 0:
+    if type(value) not in [int, float] or value < 0:
         return "Number must be 0 or higher"
     return None
