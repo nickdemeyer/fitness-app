@@ -66,6 +66,19 @@ class MealTracker:
         self.cur.execute(query, (new_value, id))
         self.con.commit()
 
+    def web_update_meal(self, id, field, new_value):
+        whitelist_column = ["date", "name", "calories", "protein", "carbs", "fats"]
+
+        if field not in whitelist_column:
+            return False
+        else:
+            query = f"update meals set {field} = %s where id = %s"
+            self.cur.execute(query, (new_value, id))
+            self.con.commit()
+        if self.cur.rowcount == 0:
+            return False
+        return True  
+
     def delete_meal(self,id):
         query = "delete from meals where id = %s"
         self.cur.execute(query,(id,))

@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from workouttracker_db import WorkoutTracker
 from mealtracker_db import MealTracker
 from datetime import datetime
+from validators import check_date, check_non_negative_number, check_whole_number, check_string_emptyfield
 
 #making the webserver flask app in a variable
 app = Flask(__name__) 
@@ -187,35 +188,17 @@ def api_meals():
                 return jsonify(f"Error, missing required field: {f}"), 400
 
         #controlling right user input - validation input
-        if type(data["date"]) is not str:
-            meal_tracker.close_connection()
-            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
-        try:
-            datetime.strptime(data["date"], "%d-%m-%Y")
-        except ValueError:
-            meal_tracker.close_connection()
-            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+        error = (check_date(data["date"]) or
+                 check_string_emptyfield(data["name"]) or
+                 check_whole_number(data["calories"]) or
+                 check_whole_number(data["protein"]) or 
+                 check_whole_number(data["carbs"]) or
+                 check_whole_number(data["fats"]))
 
-        if type(data["name"]) is not str or data["name"] == "":
+        if error:
             meal_tracker.close_connection()
-            return jsonify("Error, Try again"), 400
-
-        if type(data["calories"]) is not int or data["calories"] <= 0:
-            meal_tracker.close_connection()
-            return jsonify("Error, try again"), 400
-
-        if type(data["protein"]) is not int or data["protein"] < 0:
-            meal_tracker.close_connection()
-            return jsonify("Error, try again"), 400
-
-        if type(data["carbs"]) is not int or data["carbs"] < 0:
-            meal_tracker.close_connection()
-            return jsonify("Error, try again"), 400
-
-        if type(data["fats"]) is not int or data["fats"] < 0:
-            meal_tracker.close_connection()
-            return jsonify("Error, try again"), 400
-
+            return(error), 400
+        
         meal_tracker.add_meal(data["date"], data["name"], data["calories"], data["protein"], data["carbs"], data["fats"])
         meal_tracker.close_connection()
         return jsonify("Meal Added!"), 201
@@ -242,6 +225,55 @@ def api_delete_meal(id):
     else:
         return jsonify("Meal Deleted!"), 200
 
+#Route update meal
+@app.route("/api/meals/<int:id>", methods=['PUT'])
+def api_update_meal(id):
+    meal_tracker = MealTracker()
+
+    #get json data step 1
+    data = request.get_json(silent=True)
+
+    #control of json exist or dict step 2
+    if data is None or type(data) is not dict:
+        meal_tracker.close_connection()
+        return jsonify("No valid data"), 400
+
+    #make whitelist + get field and new_value from the data
+    whitelist = ["date", "name", "calories", "protein", "carbs", "fats"]
+    field = data.get("field")
+    new_value = data.get("new_value")
+
+    #control if field in whitelist
+    if field not in whitelist:
+        meal_tracker.close_connection()
+        return jsonify("Error, bad request!"), 400
+
+    #validation input new_value
+    error = None    #empty box 
+
+    if field == "date":
+        error = check_date(new_value) 
+    elif field == "name":
+        error = check_string_emptyfield(new_value)
+    elif field == "calories":
+        error = check_whole_number(new_value)
+    elif field == "protein":
+        error = check_whole_number(new_value)
+    elif field == "carbs":
+        error = check_whole_number(new_value)
+    elif field == "fats":
+        error = check_whole_number(new_value)
+
+    if error:
+        meal_tracker.close_connection()
+        return jsonify(error), 400
+
+    #return confirm message
+    upd_meal = meal_tracker.web_update_meal(id, field, new_value)
+    meal_tracker.close_connection()
+    if upd_meal is False:
+        return jsonify("meal does not exist!"), 404
+    return jsonify("Meal updated!"), 200
 
 
 
