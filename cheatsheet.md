@@ -89,3 +89,9 @@ Precies de omgekeerde weg!
 1. Database: Geeft een tuple (een kale rij met data zonder labels, bijv: (1, 'Kip', 500)).
 2. Jouw Code: Plakt met dict(zip(columns, row)) de labels er weer aan vast om er een Python Dictionary van te maken ({"id": 1, "name": "Kip"}).
 3. Flask: Vertaalt die dictionary met jsonify() weer terug naar JSON, zodat Postman of de app het netjes op het scherm kan tonen.
+
+
+## SQLalchemy url connectie database:
+    from sqlalchemy import create_engine
+
+    engine = create_engine("postgresql+psycopg2://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME")
