@@ -15,7 +15,7 @@ port = os.getenv("DB_PORT")
 name = os.getenv("DB_NAME")
 
 #URL maken zodat ik geen f-string nodig heb dit is voor bepaalde characters in wachtwoorden zodat de url niet breekt.
-url_object = URL.create("postgresql+psycopg2", username=user, password=password, host=host, database=name)
+url_object = URL.create("postgresql+psycopg2", username=user, password=password, host=host, port=port, database=name)
 
 #engine maken start van iedere sqlalchemy app het is de "home base"
 engine = create_engine(url_object)
