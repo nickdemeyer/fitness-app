@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
-import psycopg2
-from sqlalchemy import create_engine, select, String, Numeric
+from sqlalchemy import create_engine, select, String, Numeric, URL
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
+from decimal import Decimal
 
 #env file inladen
 load_dotenv()
@@ -14,8 +14,11 @@ host = os.getenv("DB_HOST")
 port = os.getenv("DB_PORT")
 name = os.getenv("DB_NAME")
 
+#URL maken zodat ik geen f-string nodig heb dit is voor bepaalde characters in wachtwoorden zodat de url niet breekt.
+url_object = URL.create("postgresql+psycopg2", username=user, password=password, host=host, database=name)
+
 #engine maken start van iedere sqlalchemy app het is de "home base"
-engine = create_engine(f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{name}")
+engine = create_engine(url_object)
 
 #base class maken
 class Base(DeclarativeBase):
@@ -29,7 +32,7 @@ class Workout(Base):
     exercise: Mapped[str] = mapped_column(String(100))
     sets: Mapped[int] = mapped_column()
     reps: Mapped[int] = mapped_column()
-    weight: Mapped[float] = mapped_column(Numeric)
+    weight: Mapped[Decimal] = mapped_column(Numeric)
 
 #data selecteren - sessie maken - select query - resultaten ophalen met for loop
 #1 sessie maken
