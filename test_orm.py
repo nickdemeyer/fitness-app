@@ -3,19 +3,20 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, select, String, Numeric, URL, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, relationship
 from decimal import Decimal
+from typing import Optional
 
 #env file inladen
 load_dotenv()
 
 #haal variablen uit .env
-user = os.getenv("DB_USER")
+db_user = os.getenv("DB_USER")
 password = os.getenv("DB_PASSWORD")
 host = os.getenv("DB_HOST")
 port = os.getenv("DB_PORT")
-name = os.getenv("DB_NAME")
+db_name = os.getenv("DB_NAME")
 
 #URL maken zodat ik geen f-string nodig heb dit is voor bepaalde characters in wachtwoorden zodat de url niet breekt.
-url_object = URL.create("postgresql+psycopg2", username=user, password=password, host=host, port=port, database=name)
+url_object = URL.create("postgresql+psycopg2", username=db_user, password=password, host=host, port=port, database=db_name)
 
 #engine maken start van iedere sqlalchemy app het is de "home base"
 engine = create_engine(url_object)
@@ -34,10 +35,10 @@ class Workout(Base):
     reps: Mapped[int] = mapped_column()
     weight: Mapped[Decimal] = mapped_column(Numeric)
     #database koppeling
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     #python snelkoppeling
-    user: Mapped["User"] = relationship(back_populates="workouts")
+    user: Mapped[Optional["User"]] = relationship(back_populates="workouts")
 
 #meal model
 class Meal(Base):
@@ -49,10 +50,10 @@ class Meal(Base):
     protein: Mapped[int] = mapped_column()
     carbs: Mapped[int] = mapped_column()
     fats: Mapped[int] = mapped_column()
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     #python snelkoppeling
-    user: Mapped["User"] = relationship(back_populates="meals")
+    user: Mapped[Optional["User"]] = relationship(back_populates="meals")
 
 #user model
 class User(Base):
@@ -74,7 +75,8 @@ with Session(engine) as session:
             print(w.exercise)
 
     workout = session.get(Workout, 6)
-    print(workout.user.username)
+    if workout is not None and workout.user is not None:
+        print(workout.user.username)
 
 
 

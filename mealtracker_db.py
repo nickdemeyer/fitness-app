@@ -38,7 +38,7 @@ class MealTracker:
             print("--------------------")
 
     def web_view_meals(self):
-        self.cur.execute("select * from meals")
+        self.cur.execute("select id, date, name, calories, protein, carbs, fats from meals")
         columns = ["id", "date", "name", "calories", "protein", "carbs", "fats"]
         rows = self.cur.fetchall()
         meals = []

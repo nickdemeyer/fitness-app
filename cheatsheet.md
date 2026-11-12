@@ -95,3 +95,9 @@ Precies de omgekeerde weg!
     from sqlalchemy import create_engine
 
     engine = create_engine("postgresql+psycopg2://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME")
+
+## SQLalchemy hint geven aan python dat waarde None kan zijn:
+    from typing import Optional
+    Met Optional[int] zeg je tegen Python: "Dit is een int, óf het is None.
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    user: Mapped[Optional["User"]] = relationship(back_populates="workouts") 
