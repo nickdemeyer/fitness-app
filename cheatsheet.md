@@ -101,3 +101,7 @@ Precies de omgekeerde weg!
     Met Optional[int] zeg je tegen Python: "Dit is een int, óf het is None.
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
     user: Mapped[Optional["User"]] = relationship(back_populates="workouts") 
+
+## SessionLocal:
+    gebruik je met flask voor requests zodat je niet nonstop de engine moet meegeven. nu moet
+    ik maar 1 keer de engine koppelen door dit te gebruiken.

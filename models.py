@@ -29,6 +29,15 @@ class Workout(Base):
     #python snelkoppeling
     user: Mapped[Optional["User"]] = relationship(back_populates="workouts")
 
+    def to_dict(self):
+        return {"id": self.id,
+                "date": self.date,
+                "exercise": self.exercise,
+                "sets": self.sets,
+                "reps": self.reps,
+                "weight": float(self.weight),
+                "user_id": self.user_id}
+
 class Meal(Base):
     __tablename__ = "meals"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -42,3 +51,13 @@ class Meal(Base):
 
     #python snelkoppeling
     user: Mapped[Optional["User"]] = relationship(back_populates="meals")
+
+    def to_dict(self):
+        return {"id": self.id,
+                "date": self.date,
+                "name": self.name,
+                "calories": self.calories,
+                "protein": self.protein,
+                "carbs": self.carbs,
+                "fats": self.fats,
+                "user_id": self.user_id}

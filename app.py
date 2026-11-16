@@ -3,7 +3,9 @@ from workouttracker_db import WorkoutTracker
 from mealtracker_db import MealTracker
 from datetime import datetime
 from validators import check_date, check_non_negative_number, check_whole_number, check_string_emptyfield
-
+from sqlalchemy import select
+from database import SessionLocal
+from models import Workout, Meal
 #making the webserver flask app in a variable
 app = Flask(__name__) 
 
