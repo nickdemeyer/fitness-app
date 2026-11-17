@@ -277,7 +277,21 @@ def api_update_meal(id):
         return jsonify("meal does not exist!"), 404
     return jsonify("Meal updated!"), 200
 
+@app.route("/api/orm/workouts")
+def orm_view_workouts():
+    with SessionLocal() as session:
+        #alle objecten ophalen
+        workouts = session.scalars(select(Workout)).all()
+        #objecten veranderen naar dict
+        result = [workout.to_dict() for workout in workouts]
+    return jsonify(result)
 
+@app.route("/api/orm/meals")
+def orm_view_meals():
+    with SessionLocal() as session:
+        meals = session.scalars(select(Meal)).all()
+        result = [meal.to_dict() for meal in meals]
+    return jsonify(result)
 
 #making sure the app can start
 if __name__ == "__main__":
