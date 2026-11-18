@@ -28,8 +28,7 @@ def get_valid_date(prompt):
     while True:
         date = input(prompt)
         try:
-            datetime.strptime(date, 1
-                              )
+            datetime.strptime(date, "%d-%m-%Y")
             return date
         except ValueError:
             print("Invalid Input. Try again.")

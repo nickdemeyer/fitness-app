@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from workouttracker_db import WorkoutTracker
 from mealtracker_db import MealTracker
 from datetime import datetime
-from validators import check_date, check_non_negative_number, check_whole_number, check_string_emptyfield
+from validators import check_date, check_non_negative_number, check_whole_number, check_string_emptyfield, check_whole_non_negative_number
 from sqlalchemy import select
 from database import SessionLocal
 from models import Workout, Meal
@@ -193,9 +193,9 @@ def api_meals():
         error = (check_date(data["date"]) or
                  check_string_emptyfield(data["name"]) or
                  check_whole_number(data["calories"]) or
-                 check_non_negative_number(data["protein"]) or 
-                 check_non_negative_number(data["carbs"]) or
-                 check_non_negative_number(data["fats"]))
+                 check_whole_non_negative_number(data["protein"]) or 
+                 check_whole_non_negative_number(data["carbs"]) or
+                 check_whole_non_negative_number(data["fats"]))
 
         if error:
             meal_tracker.close_connection()
@@ -260,11 +260,11 @@ def api_update_meal(id):
     elif field == "calories":
         error = check_whole_number(new_value)
     elif field == "protein":
-        error = check_non_negative_number(new_value)
+        error = check_whole_non_negative_number(new_value)
     elif field == "carbs":
-        error = check_non_negative_number(new_value)
+        error = check_whole_non_negative_number(new_value)
     elif field == "fats":
-        error = check_non_negative_number(new_value)
+        error = check_whole_non_negative_number(new_value)
 
     if error:
         meal_tracker.close_connection()

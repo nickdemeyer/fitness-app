@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine, select, String, Numeric, URL, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, relationship
+from sqlalchemy import String, Numeric, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from decimal import Decimal
 from typing import Optional
 
