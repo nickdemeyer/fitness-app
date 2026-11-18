@@ -29,14 +29,15 @@ def test_workout():
     return jsonify(workout)
 
 #view workouts route and adding a workout
-@app.route('/api/workouts', methods=['GET', 'POST'])
-def api_workouts():
-    tracker = WorkoutTracker()
-    if request.method == 'GET':
-        workouts = tracker.web_view_workouts()
-        tracker.close_connection()
-        return jsonify(workouts)
-    
+@app.route('/api/workouts', methods=['GET'])
+def api_get_workouts():
+    with SessionLocal() as session:
+        stmt = select(Workout).order_by(Workout.id)
+        workouts = session.scalars(stmt).all()
+        result = [workout.to_dict() for workout in workouts]
+    return jsonify(result)
+
+
     elif request.method == 'POST':
         data = request.get_json(silent=True) #vang json data op
 
