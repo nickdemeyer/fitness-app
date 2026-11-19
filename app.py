@@ -37,8 +37,10 @@ def api_get_workouts():
         result = [workout.to_dict() for workout in workouts]
     return jsonify(result)
 
+@app.route('/api/workouts', methods=['POST'])
+def api_add_workout():
+        tracker = WorkoutTracker()
 
-    elif request.method == 'POST':
         data = request.get_json(silent=True) #vang json data op
 
         #bestaat de data en of json object dict is
@@ -86,13 +88,12 @@ def api_get_workouts():
 #view one workout route, delete and update
 @app.route("/api/workouts/<int:id>", methods=['GET'])
 def api_one_workout(id):
-    tracker = WorkoutTracker()
-    workout = tracker.web_view_one_workout(id)
-    tracker.close_connection()
+    with SessionLocal() as session:
+        workout = session.get(Workout, id)
     if workout is None:
         return jsonify("Error! Workout not found."), 404
     else:
-        return jsonify(workout), 200
+        return jsonify(workout.to_dict()), 200
     
 @app.route("/api/workouts/<int:id>", methods=['DELETE'])
 def api_delete_workout(id):
@@ -277,15 +278,6 @@ def api_update_meal(id):
     if upd_meal is False:
         return jsonify("meal does not exist!"), 404
     return jsonify("Meal updated!"), 200
-
-@app.route("/api/orm/workouts")
-def orm_view_workouts():
-    with SessionLocal() as session:
-        #alle objecten ophalen
-        workouts = session.scalars(select(Workout)).all()
-        #objecten veranderen naar dict
-        result = [workout.to_dict() for workout in workouts]
-    return jsonify(result)
 
 @app.route("/api/orm/meals")
 def orm_view_meals():
