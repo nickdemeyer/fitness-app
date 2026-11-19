@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from workouttracker_db import WorkoutTracker
 from mealtracker_db import MealTracker
 from datetime import datetime
-from validators import check_date, check_non_negative_number, check_whole_number, check_string_emptyfield, check_whole_non_negative_number
+from validators import check_date, check_whole_number, check_string_emptyfield, check_whole_non_negative_number
 from sqlalchemy import select
 from database import SessionLocal
 from models import Workout, Meal
@@ -90,10 +90,10 @@ def api_add_workout():
 def api_one_workout(id):
     with SessionLocal() as session:
         workout = session.get(Workout, id)
-    if workout is None:
-        return jsonify("Error! Workout not found."), 404
-    else:
-        return jsonify(workout.to_dict()), 200
+        if workout is None:
+            return jsonify("Error! Workout not found."), 404
+        else:
+            return jsonify(workout.to_dict()), 200
     
 @app.route("/api/workouts/<int:id>", methods=['DELETE'])
 def api_delete_workout(id):
