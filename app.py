@@ -1,8 +1,6 @@
 from flask import Flask, jsonify, request
-from workouttracker_db import WorkoutTracker
 from mealtracker_db import MealTracker
-from datetime import datetime
-from validators import check_date, check_whole_number, check_string_emptyfield, check_whole_non_negative_number
+from validators import check_date, check_whole_number, check_string_emptyfield, check_whole_non_negative_number, check_non_negative_number
 from sqlalchemy import select
 from database import SessionLocal
 from models import Workout, Meal
@@ -39,51 +37,39 @@ def api_get_workouts():
 
 @app.route('/api/workouts', methods=['POST'])
 def api_add_workout():
-        tracker = WorkoutTracker()
-
         data = request.get_json(silent=True) #vang json data op
 
         #bestaat de data en of json object dict is
         if data is None or type(data) is not dict:
-            tracker.close_connection()
             return jsonify("No valid data"), 400
         
         #controleren of de velden bestaan
         verplichte_velden = ["date", "exercise", "sets", "reps", "weight"]
         for veld in verplichte_velden:
             if veld not in data:
-                tracker.close_connection()
                 return jsonify({"error": f"Missing required field: {veld}"}), 400
 
-        #validation points
-        if type(data["date"]) is not str:
-            tracker.close_connection()
-            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
-        try:
-            datetime.strptime(data["date"], "%d-%m-%Y")
-        except ValueError:
-            tracker.close_connection()
-            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+        #validatie validators
+        error = (check_date(data["date"]) or
+                 check_string_emptyfield(data["exercise"]) or
+                 check_whole_number(data["sets"]) or
+                 check_whole_number(data["reps"]) or
+                 check_non_negative_number(data["weight"])
+        )
 
-        if type(data["exercise"]) is not str or data["exercise"] == "":
-            tracker.close_connection()
-            return jsonify("Error, try again"), 400
-        
-        if type(data["sets"]) is not int or data["sets"] <= 0:
-            tracker.close_connection()
-            return jsonify("Error, try again"), 400
-        
-        if type(data["reps"]) is not int or data["reps"] <= 0:
-            tracker.close_connection()
-            return jsonify("Error, try again"), 400
+        if error:
+            return jsonify(error), 400
 
-        if type(data["weight"]) not in [int, float] or data["weight"] < 0:
-            tracker.close_connection()
-            return jsonify("Error, try again"), 400
+        with SessionLocal() as session:
+            new_workout = Workout(date=data["date"],
+                                  exercise=data["exercise"],
+                                  sets=data["sets"],
+                                  reps=data["reps"],
+                                  weight=data["weight"])
+            session.add(new_workout)
+            session.commit()
+            return jsonify("Workout Added!"), 201
 
-        tracker.add_workout(data["date"], data["exercise"], data["sets"], data["reps"], data["weight"])
-        tracker.close_connection()
-        return jsonify("Workout Added!"), 201
 
 #view one workout route, delete and update
 @app.route("/api/workouts/<int:id>", methods=['GET'])
@@ -97,24 +83,23 @@ def api_one_workout(id):
     
 @app.route("/api/workouts/<int:id>", methods=['DELETE'])
 def api_delete_workout(id):
-    tracker = WorkoutTracker()
-    del_workout = tracker.web_delete_workout(id)
-    tracker.close_connection()
-    if del_workout is False:
-        return jsonify("Error! Workout does not exist."), 404
-    else:
+    with SessionLocal() as session:
+        workout = session.get(Workout, id)
+        if workout is None:
+            return jsonify("Workout does not exist!"), 404
+
+        session.delete(workout)
+        session.commit()
         return jsonify("Workout Deleted!"), 200
 
 @app.route("/api/workouts/<int:id>", methods=['PUT'])
 def api_update_workout(id):
-    tracker = WorkoutTracker()
 
     #step 1: get json data
     data = request.get_json(silent=True)
 
     #step 2: controlling if json exist or is a dict
     if data is None or type(data) is not dict:
-        tracker.close_connection()
         return jsonify("No valid data"), 400
 
     #step 3: controlling if field exists
@@ -124,47 +109,38 @@ def api_update_workout(id):
     new_value = data.get("new_value")
 
     if field not in whitelist:
-        tracker.close_connection()
         return jsonify("Error, bad request!"), 400
 
     #step 4: controlling new_value validation as the right type for that field
+    error = None
     if field == "date":
-        if type(new_value) is not str:
-            tracker.close_connection()
-            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
-        try:
-            datetime.strptime(new_value, "%d-%m-%Y")
-        except ValueError:
-            tracker.close_connection()
-            return jsonify("Error, try again. Fill in DD-MM-YYYY"), 400
+        error = check_date(new_value)
 
     elif field == "exercise":
-        if type(new_value) is not str or new_value == "":
-            tracker.close_connection()
-            return jsonify("Error, try again"), 400
+        error = check_string_emptyfield(new_value)
         
     elif field == "sets":
-        if type(new_value) is not int or new_value <= 0:
-            tracker.close_connection()
-            return jsonify("Error, try again"), 400
+        error = check_whole_number(new_value)
 
     elif field == "reps":
-        if type(new_value) is not int or new_value <= 0:
-            tracker.close_connection()
-            return jsonify("Error, try again"), 400
+        error = check_whole_number(new_value)
 
     elif field == "weight":
-        if type(new_value) not in [int, float] or new_value < 0:
-            tracker.close_connection()
-            return jsonify("Error, try again"), 400
+        error = check_non_negative_number(new_value)
 
-    #step 5: return confirm message
-    upd_workout = tracker.web_update_workout(id, field, new_value)
-    tracker.close_connection()
-    if upd_workout is False:
-        return jsonify("Workout does not exist!"), 404
-    else:
-        return jsonify("workout updated!"), 200
+    if error:
+        return jsonify(error), 400
+
+    #zoek de workout en pass aan met setattr()
+    with SessionLocal() as session:
+        workout = session.get(Workout, id)
+        if workout is None:
+            return jsonify("Workout does not exist!"), 404
+
+        setattr(workout, field, new_value)
+        session.commit()
+        return jsonify("Workout Updated!"), 200
+
     
 #view meals route + add meal (post)
 @app.route('/api/meals', methods=['GET', 'POST'])
