@@ -143,13 +143,13 @@ def api_update_workout(id):
 
     
 #view meals route + add meal (post)
-@app.route('/api/meals', methods=['GET', 'POST'])
+@app.route('/api/meals', methods=['GET'])
 def api_meals():
-    meal_tracker = MealTracker()
-    if request.method == 'GET':
-        meals = meal_tracker.web_view_meals()
-        meal_tracker.close_connection()
-        return jsonify(meals)
+    with SessionLocal() as session:
+        stmt = select(Meal).order_by(Meal.id)
+        meals = session.scalars(stmt).all()
+        result = [meal.to_dict() for meal in meals]
+        return jsonify(result)
 
     elif request.method == 'POST':
         #getting data
@@ -186,13 +186,12 @@ def api_meals():
 #Route view one meal
 @app.route("/api/meals/<int:id>", methods=['GET'])
 def api_one_meal(id):
-    meal_tracker = MealTracker()
-    meal = meal_tracker.web_view_one_meal(id)
-    meal_tracker.close_connection()
-    if meal is None:
-        return jsonify("Error. Meal not found!"), 404
-    else:
-        return jsonify(meal), 200
+    with SessionLocal() as session:
+        meal = session.get(Meal, id)
+        if meal is None:
+            return jsonify("Meal does not exist!"), 404
+        else:
+            return jsonify(meal.to_dict()), 200
 
 #Route delete meal
 @app.route("/api/meals/<int:id>", methods=['DELETE'])
