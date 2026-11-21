@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-from mealtracker_db import MealTracker
 from validators import check_date, check_whole_number, check_string_emptyfield, check_whole_non_negative_number, check_non_negative_number
 from sqlalchemy import select
 from database import SessionLocal
@@ -260,13 +259,6 @@ def api_update_meal(id):
         setattr(Meal, field, new_value)
         session.commit()
         return jsonify("Meal Updated!"), 200
-
-@app.route("/api/orm/meals")
-def orm_view_meals():
-    with SessionLocal() as session:
-        meals = session.scalars(select(Meal)).all()
-        result = [meal.to_dict() for meal in meals]
-    return jsonify(result)
 
 #making sure the app can start
 if __name__ == "__main__":
