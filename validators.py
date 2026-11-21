@@ -28,3 +28,8 @@ def check_whole_non_negative_number(value):
     if type(value) is not int or value < 0:
         return "Must be whole number 0 or higher"
     return None
+
+def check_positive_number(value):
+    if type(value) not in [int, float] or value <= 0:
+        return "Number must be higher then 0."
+    return None
