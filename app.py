@@ -174,7 +174,7 @@ def api_add_meal():
                  check_whole_non_negative_number(data["fats"]))
 
     if error:
-        return(error), 400
+        return jsonify(error), 400
 
     with SessionLocal() as session:
         new_meal = Meal(date=data["date"],
@@ -256,7 +256,7 @@ def api_update_meal(id):
         if meal is None:
             return jsonify("Meal does not exist!"), 404
 
-        setattr(Meal, field, new_value)
+        setattr(meal, field, new_value)
         session.commit()
         return jsonify("Meal Updated!"), 200
 
