@@ -142,7 +142,7 @@ def api_update_workout(id):
         return jsonify("Workout Updated!"), 200
 
     
-#view meals route + add meal (post)
+#view meals
 @app.route('/api/meals', methods=['GET'])
 def api_meals():
     with SessionLocal() as session:
@@ -151,37 +151,44 @@ def api_meals():
         result = [meal.to_dict() for meal in meals]
         return jsonify(result)
 
-    elif request.method == 'POST':
-        #getting data
-        data = request.get_json(silent=True)
+#add meal
+@app.route('/api/meals', methods=['POST'])
+def api_add_meal():
+    data = request.get_json(silent=True)
 
-        #bestaat data en is json een dict?
-        if data is None or type(data) is not dict:
-            meal_tracker.close_connection()
-            return jsonify("No valid data"), 400
+    #bestaat data en is json een dict?
+    if data is None or type(data) is not dict:
+        return jsonify("No valid data"), 400
 
-        #do the fields exist?
-        field = ["date", "name", "calories", "protein", "carbs", "fats"]
-        for f in field:
-            if f not in data:
-                meal_tracker.close_connection()
-                return jsonify(f"Error, missing required field: {f}"), 400
+    #do the fields exist?
+    field = ["date", "name", "calories", "protein", "carbs", "fats"]
+    for f in field:
+        if f not in data:
+            return jsonify(f"Error, missing required field: {f}"), 400
 
-        #controlling right user input - validation input
-        error = (check_date(data["date"]) or
+    #controlling right user input - validation input
+    error = (check_date(data["date"]) or
                  check_string_emptyfield(data["name"]) or
                  check_whole_number(data["calories"]) or
                  check_whole_non_negative_number(data["protein"]) or 
                  check_whole_non_negative_number(data["carbs"]) or
                  check_whole_non_negative_number(data["fats"]))
 
-        if error:
-            meal_tracker.close_connection()
-            return(error), 400
-        
-        meal_tracker.add_meal(data["date"], data["name"], data["calories"], data["protein"], data["carbs"], data["fats"])
-        meal_tracker.close_connection()
+    if error:
+        return(error), 400
+
+    with SessionLocal() as session:
+        new_meal = Meal(date=data["date"],
+                        name=data["name"],
+                        calories=data["calories"],
+                        protein=data["protein"],
+                        carbs=data["carbs"],
+                        fats=data["fats"])
+        session.add(new_meal)
+        session.commit()
         return jsonify("Meal Added!"), 201
+        
+        
 
 #Route view one meal
 @app.route("/api/meals/<int:id>", methods=['GET'])
@@ -196,25 +203,24 @@ def api_one_meal(id):
 #Route delete meal
 @app.route("/api/meals/<int:id>", methods=['DELETE'])
 def api_delete_meal(id):
-    meal_tracker = MealTracker()
-    del_meal = meal_tracker.web_delete_meal(id)
-    meal_tracker.close_connection()
-    if del_meal is False:
-        return jsonify("Error. Meal does not exist!"), 404
-    else:
+    with SessionLocal() as session:
+        meal = session.get(Meal, id)
+        if meal is None:
+            return jsonify("Meal does not exist!"), 404
+
+        session.delete(meal)
+        session.commit()
         return jsonify("Meal Deleted!"), 200
 
 #Route update meal
 @app.route("/api/meals/<int:id>", methods=['PUT'])
 def api_update_meal(id):
-    meal_tracker = MealTracker()
 
     #get json data step 1
     data = request.get_json(silent=True)
 
     #control of json exist or dict step 2
     if data is None or type(data) is not dict:
-        meal_tracker.close_connection()
         return jsonify("No valid data"), 400
 
     #make whitelist + get field and new_value from the data
@@ -224,7 +230,6 @@ def api_update_meal(id):
 
     #control if field in whitelist
     if field not in whitelist:
-        meal_tracker.close_connection()
         return jsonify("Error, bad request!"), 400
 
     #validation input new_value
@@ -244,15 +249,17 @@ def api_update_meal(id):
         error = check_whole_non_negative_number(new_value)
 
     if error:
-        meal_tracker.close_connection()
         return jsonify(error), 400
 
-    #return confirm message
-    upd_meal = meal_tracker.web_update_meal(id, field, new_value)
-    meal_tracker.close_connection()
-    if upd_meal is False:
-        return jsonify("meal does not exist!"), 404
-    return jsonify("Meal updated!"), 200
+    #zoek de maaltijd en pass aan met setattr()
+    with SessionLocal() as session:
+        meal = session.get(Meal, id)
+        if meal is None:
+            return jsonify("Meal does not exist!"), 404
+
+        setattr(Meal, field, new_value)
+        session.commit()
+        return jsonify("Meal Updated!"), 200
 
 @app.route("/api/orm/meals")
 def orm_view_meals():
