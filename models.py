@@ -22,7 +22,7 @@ class Bodyweight(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     weight: Mapped[Decimal] = mapped_column(Numeric(5, 1))
-    date: Mapped[date] = mapped_column(Date)
+    the_date: Mapped[date] = mapped_column(Date)
     user: Mapped["User"] = relationship(back_populates="body_weights")
 
     def to_dict(self):

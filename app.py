@@ -2,7 +2,8 @@ from flask import Flask, jsonify, request
 from validators import check_date, check_whole_number, check_string_emptyfield, check_whole_non_negative_number, check_non_negative_number
 from sqlalchemy import select
 from database import SessionLocal
-from models import Workout, Meal
+from models import Workout, Meal, Bodyweight
+
 #making the webserver flask app in a variable
 app = Flask(__name__) 
 
@@ -259,6 +260,16 @@ def api_update_meal(id):
         setattr(meal, field, new_value)
         session.commit()
         return jsonify("Meal Updated!"), 200
+
+@app.route('/api/body-weight', methods=['GET'])
+def api_view_bodyweights():
+    with SessionLocal() as session:
+        stmt = select(Bodyweight).order_by(Bodyweight.the_date)
+        bodyweights = session.scalars(stmt).all()
+        result = [b.to_dict() for b in bodyweights]
+        return jsonify(result)
+                           
+
 
 #making sure the app can start
 if __name__ == "__main__":
