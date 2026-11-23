@@ -29,7 +29,7 @@ class Bodyweight(Base):
         return {"id": self.id,
                 "user_id": self.user_id,
                 "weight": float(self.weight),
-                "date": self.date.strftime("%d-%m-%Y")}
+                "date": self.the_date.strftime("%d-%m-%Y")}
 
 class Workout(Base):
     __tablename__ = "workouts"
