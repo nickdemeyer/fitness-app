@@ -268,6 +268,14 @@ def api_view_bodyweights():
         bodyweights = session.scalars(stmt).all()
         result = [b.to_dict() for b in bodyweights]
         return jsonify(result)
+
+@app.route('/api/body-weight/<int:id>', methods=['GET'])
+def api_one_bodyweight(id):
+    with SessionLocal() as session:
+        bodyweight = session.get(Bodyweight, id)
+        if bodyweight is None:
+            return jsonify("Bodyweight does not exist!"), 404
+        return jsonify(bodyweight.to_dict()), 200
                            
 
 
