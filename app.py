@@ -261,6 +261,7 @@ def api_update_meal(id):
         session.commit()
         return jsonify("Meal Updated!"), 200
 
+#view bodyweight
 @app.route('/api/body-weight', methods=['GET'])
 def api_view_bodyweights():
     with SessionLocal() as session:
@@ -276,8 +277,25 @@ def api_one_bodyweight(id):
         if bodyweight is None:
             return jsonify("Bodyweight does not exist!"), 404
         return jsonify(bodyweight.to_dict()), 200
-                           
 
+#add bodyweight                          
+#URL en toegestane methode(post)
+@app.route('/api/body-weight', methods=['POST'])
+def api_add_bodyweight():
+    #json ophalen
+    data = request.get_json(silent=True)
+    #controleren of het dictionary is
+    if data is None or type(data) is not dict:
+        return jsonify("No vaild data!"), 400
+    #valideren met helpers en bij fout een 400 terug geven
+    for veld in ["date", "weight"]:
+        if veld not in data:
+            return jsonify(f"Missing required field: {veld}"), 400
+    #de datum tekst omzetten naar echt datumobject
+    #een sessie openen, een bodyweight maken met vaste current_user_id, toevoegen en committen
+    with SessionLocal() as session:
+
+    #een bericht met 201 teruggeven
 
 #making sure the app can start
 if __name__ == "__main__":
