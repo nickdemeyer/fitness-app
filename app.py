@@ -1,9 +1,11 @@
 from flask import Flask, jsonify, request
-from validators import check_date, check_whole_number, check_string_emptyfield, check_whole_non_negative_number, check_non_negative_number
+from validators import check_date, check_whole_number, check_string_emptyfield, check_whole_non_negative_number, check_non_negative_number, check_positive_number
 from sqlalchemy import select
 from database import SessionLocal
 from models import Workout, Meal, Bodyweight
+from datetime import datetime
 
+CURRENT_USER_ID = 1
 #making the webserver flask app in a variable
 app = Flask(__name__) 
 
@@ -286,14 +288,28 @@ def api_add_bodyweight():
     data = request.get_json(silent=True)
     #controleren of het dictionary is
     if data is None or type(data) is not dict:
-        return jsonify("No vaild data!"), 400
+        return jsonify("No valid data!"), 400
     #valideren met helpers en bij fout een 400 terug geven
     for veld in ["date", "weight"]:
         if veld not in data:
             return jsonify(f"Missing required field: {veld}"), 400
+
+    error = (check_date(data["date"]) or check_positive_number(data["weight"]))
+
+    if error:
+        return jsonify(error), 400
+    
     #de datum tekst omzetten naar echt datumobject
+    day = datetime.strptime(data["date"], "%d-%m-%Y").date()
+
     #een sessie openen, een bodyweight maken met vaste current_user_id, toevoegen en committen
     with SessionLocal() as session:
+        new_weight = Bodyweight(the_date=day,
+                                weight=data["weight"],
+                                user_id=CURRENT_USER_ID)
+        session.add(new_weight)
+        session.commit()
+        return jsonify("Bodyweight Added!"), 201
 
     #een bericht met 201 teruggeven
 
